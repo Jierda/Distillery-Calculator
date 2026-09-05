@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <title>Laboratory & Distillery Toolkit</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0284c7;
+            --border-color: #334155;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        body { background-color: var(--bg-color); color: var(--text-primary); padding: 1rem; display: flex; justify-content: center; }
+
+        .container { width: 100%; max-width: 980px; }
+
+        header { margin-bottom: 2rem; text-align: center; }
+        header h1 { font-size: 1.8rem; color: var(--text-primary); }
+        header p { color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem; }
+
+        .nav-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; color: var(--text-secondary); padding: 0.6rem 1rem; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
+        .tab-btn.active { background-color: var(--card-bg); color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+        input[type="text"], input[type="number"], select { background: #0f172a; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.65rem; border-radius: 6px; font-size: 0.95rem; outline: none; }
+        input:focus, select:focus { border-color: var(--accent); }
+
+        .btn { background-color: var(--accent); color: #0f172a; border: none; padding: 0.65rem 1.2rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s ease; }
+        .btn:hover { background-color: var(--accent-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .btn-outline:hover { border-color: var(--text-primary); color: var(--text-primary); }
+        .btn-danger { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-danger:hover { background-color: var(--danger); color: #fff; }
+
+        .results { background: #0b1120; border: 1px dashed var(--border-color); border-radius: 6px; padding: 1rem; margin: 1.25rem 0; }
+        .result-block { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .result-block:last-of-type { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .result-block-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; }
+        .result-item { display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.9rem; }
+        .result-value { font-weight: 700; color: var(--text-primary); }
+
+        .file-sync-bar { display: flex; align-items: center; justify-content: space-between; background-color: #0b1120; border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
+        .file-sync-status { color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap; }
+        .file-sync-status.active { color: var(--success); font-weight: 600; }
+        .status-msg { font-size: 0.8rem; color: var(--success); margin-top: 0.5rem; display: none; }
+        
+        .url-input-container { display: flex; flex: 1; gap: 0.5rem; min-width: 250px; }
+        .url-input-container input { flex: 1; }
+
+        /* Shared Lists CSS */
+        .list-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .list-input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .list-input-group input { flex: 1; }
+        .items-ul { list-style: none; margin-top: 1rem; }
+        .item-li { display: flex; align-items: center; gap: 0.75rem; background: #0f172a; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; border: 1px solid var(--border-color); transition: 0.2s; }
+        .item-li.done { opacity: 0.6; }
+        .item-li.done .item-text { text-decoration: line-through; color: var(--text-secondary); }
+        .item-checkbox { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); cursor: pointer; }
+        .item-text { flex: 1; font-size: 0.95rem; }
+        .item-delete { background: none; border: none; color: var(--text-secondary); font-weight: bold; cursor: pointer; font-size: 1.2rem; padding: 0 0.5rem; transition: 0.2s; }
+        .item-delete:hover { color: var(--danger); transform: scale(1.1); }
+        .syncing-badge { font-size: 0.8rem; color: var(--accent); font-weight: normal; margin-left: 0.5rem; display: none; }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+        th, td { padding: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-secondary); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Laboratory & Distillery Toolkit</h1>
+        <p>Calculations, cloud backups, and shared team lists.</p>
+    </header>
+
+    <!-- Google Sheets Sync Status Bar -->
+    <div class="file-sync-bar">
+        <div class="url-input-container">
+            <input type="text" id="sheets-url-input" placeholder="Paste Google Apps Script Web App URL here...">
+            <button class="btn btn-outline" onclick="saveSheetsUrl()">Save Link</button>
+        </div>
+        <span id="sheets-status" class="file-sync-status">Sheet Not Linked</span>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('lists')">Shared Lists</button>
+        <button class="tab-btn" onclick="switchTab('dilution')">Spirit Dilution</button>
+        <button class="tab-btn" onclick="switchTab('fortification')">Fortification</button>
+        <button class="tab-btn" onclick="switchTab('syrup')">Sugar Syrup</button>
+        <button class="tab-btn" onclick="switchTab('alc-temp')">Alcometer</button>
+        <button class="tab-btn" onclick="switchTab('hyd-temp')">Hydrometer</button>
+        <button class="tab-btn" onclick="switchTab('yield')">Yield Predict</button>
+        <button class="tab-btn" onclick="switchTab('vol-weight')">Vol ↔ Weight</button>
+        <button class="tab-btn" onclick="switchTab('directory')">History Log</button>
+    </div>
+
+    <!-- SHARED LISTS TAB -->
+    <div id="tab-lists" class="tab-content active">
+        <div class="list-columns">
+            <!-- Tasks Column -->
+            <div class="card">
+                <h3 style="margin-bottom: 1rem; display: flex; align-items: center;">
+                    Task List <span id="syncing-tasks" class="syncing-badge">Syncing...</span>
+                </h3>
+                <div class="list-input-group">
+                    <input type="text" id="tasks-input" placeholder="Enter a new task..." onkeypress="if(event.key==='Enter') addListItem('tasks')">
+                    <button class="btn" onclick="addListItem('tasks')">Add</button>
+                </div>
+                <ul class="items-ul" id="tasks-ul"></ul>
+            </div>
+
+            <!-- Shopping Column -->
+            <div class="card">
+                <h3 style="margin-bottom: 1rem; display: flex; align-items: center;">
+                    Shopping List <span id="syncing-shopping" class="syncing-badge">Syncing...</span>
+                </h3>
+                <div class="list-input-group">
+                    <input type="text" id="shopping-input" placeholder="Enter an item to buy..." onkeypress="if(event.key==='Enter') addListItem('shopping')">
+                    <button class="btn" onclick="addListItem('shopping')">Add</button>
+                </div>
+                <ul class="items-ul" id="shopping-ul"></ul>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <button class="btn btn-outline" onclick="fetchCloudLists()">🔄 Refresh Lists from Cloud</button>
+        </div>
+    </div>
+
+    <!-- Spirit Dilution Calculator -->
+    <div id="tab-dilution" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Spirit Dilution / Proofing</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Initial Volume (L)</label><input type="number" id="dil-vol" placeholder="e.g., 250.0"></div>
+                <div class="form-group"><label>Initial ABV (%)</label><input type="number" id="dil-abv-start" placeholder="e.g., 75.0"></div>
+                <div class="form-group"><label>Target ABV (%)</label><input type="number" id="dil-abv-target" placeholder="e.g., 40.0"></div>
+                <div class="form-group"><label>Batch / Note</label><input type="text" id="dil-batch-note" placeholder="e.g., Batch #12 Gin Cut"></div>
+            </div>
+            <button class="btn" onclick="calculateDilution()">Calculate & Save</button>
+            <div class="results" id="dilution-result" style="display: none;">
+                <div class="result-item"><span>Water to Add:</span><span class="result-value" id="res-water-needed">0 L</span></div>
+                <div class="result-item"><span>Final Target Vol:</span><span class="result-value" id="res-final-vol">0 L</span></div>
+                <div class="status-msg" id="dilution-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fortification Calculator -->
+    <div id="tab-fortification" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Spirit Fortification / Blending</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Base Liquid Volume (L)</label><input type="number" id="fort-base-vol"></div>
+                <div class="form-group"><label>Base Liquid ABV (%)</label><input type="number" id="fort-base-abv"></div>
+                <div class="form-group"><label>Fortifying Spirit ABV (%)</label><input type="number" id="fort-high-abv"></div>
+                <div class="form-group"><label>Target Fortified ABV (%)</label><input type="number" id="fort-target-abv"></div>
+                <div class="form-group" style="grid-column: 1 / -1;"><label>Batch / Note</label><input type="text" id="fort-batch-note"></div>
+            </div>
+            <button class="btn" onclick="calculateFortification()">Calculate & Save</button>
+            <div class="results" id="fortification-result" style="display: none;">
+                <div class="result-item"><span>Spirit Required:</span><span class="result-value" id="res-fort-needed">0 L</span></div>
+                <div class="result-item"><span>Total Fortified Vol:</span><span class="result-value" id="res-fort-total-vol">0 L</span></div>
+                <div class="status-msg" id="fortification-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sugar Syrup -->
+    <div id="tab-syrup" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Sugar Syrup (1:1 & 2:1)</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Desired Final Volume (L)</label><input type="number" id="syrup-vol"></div>
+                <div class="form-group"><label>Batch / Note</label><input type="text" id="syrup-batch-note"></div>
+            </div>
+            <button class="btn" onclick="calculateSyrup()">Calculate & Save</button>
+            <div class="results" id="syrup-result" style="display: none;">
+                <div class="result-block">
+                    <div class="result-block-title">1:1 Simple Syrup</div>
+                    <div class="result-item"><span>Water Required:</span><span class="result-value" id="res-simple-water">0 L</span></div>
+                    <div class="result-item"><span>Sugar Required:</span><span class="result-value" id="res-simple-sugar">0 kg</span></div>
+                </div>
+                <div class="result-block">
+                    <div class="result-block-title">2:1 Rich Syrup</div>
+                    <div class="result-item"><span>Water Required:</span><span class="result-value" id="res-rich-water">0 L</span></div>
+                    <div class="result-item"><span>Sugar Required:</span><span class="result-value" id="res-rich-sugar">0 kg</span></div>
+                </div>
+                <div class="status-msg" id="syrup-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alcometer Temp Adjust -->
+    <div id="tab-alc-temp" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Alcometer Temperature Adjustment</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Observed ABV (%)</label><input type="number" id="alc-abv"></div>
+                <div class="form-group"><label>Current Temp</label><input type="number" id="alc-temp"></div>
+                <div class="form-group"><label>Temp Scale</label><select id="alc-temp-unit"><option value="C">Celsius (°C)</option><option value="F">Fahrenheit (°F)</option></select></div>
+                <div class="form-group"><label>Calibrated Temp</label><select id="alc-cal-temp"><option value="20">20°C / 68°F</option><option value="15.56">60°F / 15.56°C</option></select></div>
+                <div class="form-group" style="grid-column: 1 / -1;"><label>Note</label><input type="text" id="alc-batch-note"></div>
+            </div>
+            <button class="btn" onclick="calculateAlcometerTemp()">Calculate & Save</button>
+            <div class="results" id="alc-temp-result" style="display: none;">
+                <div class="result-item"><span>True Corrected ABV:</span><span class="result-value" id="res-alc-true-abv">0%</span></div>
+                <div class="status-msg" id="alc-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hydrometer Temp Adjust -->
+    <div id="tab-hyd-temp" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Hydrometer Specific Gravity Adjustment</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Observed SG</label><input type="number" id="hyd-sg" step="0.001"></div>
+                <div class="form-group"><label>Current Temp</label><input type="number" id="hyd-temp"></div>
+                <div class="form-group"><label>Temp Scale</label><select id="hyd-temp-unit"><option value="C">Celsius (°C)</option><option value="F">Fahrenheit (°F)</option></select></div>
+                <div class="form-group"><label>Calibrated Temp</label><select id="hyd-cal-temp"><option value="20">20°C / 68°F</option><option value="15.56">60°F / 15.56°C</option></select></div>
+                <div class="form-group"><label>Wash Type</label><input type="text" id="hyd-wash-type"></div>
+                <div class="form-group"><label>Note</label><input type="text" id="hyd-batch-note"></div>
+            </div>
+            <button class="btn" onclick="calculateHydrometerTemp()">Calculate & Save</button>
+            <div class="results" id="hyd-temp-result" style="display: none;">
+                <div class="result-item"><span>True Corrected SG:</span><span class="result-value" id="res-hyd-true-sg">1.000</span></div>
+                <div class="status-msg" id="hyd-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yield Prediction -->
+    <div id="tab-yield" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Fermentation & Yield Prediction</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Starting SG (OG)</label><input type="number" id="yield-og" step="0.001"></div>
+                <div class="form-group"><label>Final SG (FG)</label><input type="number" id="yield-fg" step="0.001"></div>
+                <div class="form-group"><label>Wash Type</label><input type="text" id="yield-wash-type"></div>
+                <div class="form-group"><label>Wash Volume (L)</label><input type="number" id="yield-wash-vol" value="900"></div>
+                <div class="form-group"><label>Est. Low Wines Vol (L)</label><input type="number" id="yield-low-wines-vol" value="280"></div>
+                <div class="form-group"><label>Note</label><input type="text" id="yield-batch-note"></div>
+            </div>
+            <button class="btn" onclick="calculateYield()">Calculate & Save</button>
+            <div class="results" id="yield-result" style="display: none;">
+                <div class="result-item"><span>Calculated Wash ABV:</span><span class="result-value" id="res-yield-wash-abv">0.00%</span></div>
+                <div class="result-item"><span>Predicted Low Wines ABV:</span><span class="result-value" id="res-yield-low-wines-abv">0.00%</span></div>
+                <div class="status-msg" id="yield-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Volume to Weight -->
+    <div id="tab-vol-weight" class="tab-content">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Volume ↔ Weight Converter</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Conversion Mode</label>
+                    <select id="vw-direction" onchange="document.getElementById('vw-amount-label').textContent = this.value==='v2w' ? 'Volume Amount (L)' : 'Weight Amount (kg)'">
+                        <option value="v2w">Volume to Weight (L → kg)</option><option value="w2v">Weight to Volume (kg → L)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label id="vw-amount-label">Volume Amount (L)</label><input type="number" id="vw-amount"></div>
+                <div class="form-group"><label>Spirit ABV (%)</label><input type="number" id="vw-abv"></div>
+                <div class="form-group"><label>Note</label><input type="text" id="vw-batch-note"></div>
+            </div>
+            <button class="btn" onclick="calculateVolWeight()">Calculate & Save</button>
+            <div class="results" id="vw-result" style="display: none;">
+                <div class="result-item"><span id="vw-res-label">Result:</span><span class="result-value" id="vw-res-value">0</span></div>
+                <div class="status-msg" id="vw-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculation Directory -->
+    <div id="tab-directory" class="tab-content">
+        <div class="card">
+            <div class="actions-bar">
+                <h3>Calculation History Log</h3>
+                <button class="btn btn-danger" onclick="clearDirectory()">Clear Local History</button>
+            </div>
+            <div class="table-container">
+                <table id="directory-table">
+                    <thead><tr><th>Date</th><th>Type</th><th>Note</th><th>Inputs</th><th>Result</th><th>Action</th></tr></thead>
+                    <tbody id="directory-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'spirit_calc_directory_records';
+    let appLists = { shopping: [], tasks: [] };
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        if (tabId === 'directory') renderDirectory();
+        if (tabId === 'lists') renderLists();
+    }
+
+    // --- GOOGLE SHEETS SYNC LOGIC ---
+
+    function loadSheetsUrl() {
+        const savedUrl = localStorage.getItem('google_sheets_url');
+        if (savedUrl) {
+            document.getElementById('sheets-url-input').value = savedUrl;
+            document.getElementById('sheets-status').textContent = "Google Sheet Linked";
+            document.getElementById('sheets-status').className = "file-sync-status active";
+            fetchCloudLists(); // Grab lists automatically on boot
+        }
+    }
+
+    function saveSheetsUrl() {
+        const url = document.getElementById('sheets-url-input').value.trim();
+        localStorage.setItem('google_sheets_url', url);
+        if (url) {
+            document.getElementById('sheets-status').textContent = "Google Sheet Linked";
+            document.getElementById('sheets-status').className = "file-sync-status active";
+            fetchCloudLists(); // Test fetching immediately
+        } else {
+            document.getElementById('sheets-status').textContent = "Sheet Not Linked";
+            document.getElementById('sheets-status').className = "file-sync-status";
+        }
+    }
+
+    async function saveEntry(entry) {
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        
+        // Deduplication check
+        if (history.length > 0) {
+            const latest = history[0];
+            if (latest.type === entry.type &&
+                latest.inputs === entry.inputs &&
+                latest.result === entry.result &&
+                latest.note === entry.note) {
+                return { saved: false, isDuplicate: true };
+            }
+        }
+
+        history.unshift(entry);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+        let syncMethod = '(Saved Locally)';
+        const sheetsUrl = localStorage.getItem('google_sheets_url');
+
+        if (sheetsUrl) {
+            try {
+                await fetch(sheetsUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'log', entry: entry })
+                });
+                syncMethod = '(Synced to Cloud)';
+            } catch (e) {
+                console.error(e);
+                syncMethod = '(Cloud Sync Failed)';
+            }
+        }
+        return { saved: true, method: syncMethod };
+    }
+
+    // --- SHARED LISTS LOGIC ---
+
+    async function fetchCloudLists() {
+        const url = localStorage.getItem('google_sheets_url');
+        if(!url) return;
+        
+        document.getElementById('syncing-tasks').style.display = 'inline';
+        document.getElementById('syncing-shopping').style.display = 'inline';
+
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            appLists.shopping = data.shopping || [];
+            appLists.tasks = data.tasks || [];
+            renderLists();
+        } catch(e) {
+            console.error("Failed to load lists:", e);
+        } finally {
+            document.getElementById('syncing-tasks').style.display = 'none';
+            document.getElementById('syncing-shopping').style.display = 'none';
+        }
+    }
+
+    async function syncListsToCloud() {
+        const url = localStorage.getItem('google_sheets_url');
+        if(!url) return;
+
+        document.getElementById('syncing-tasks').style.display = 'inline';
+        document.getElementById('syncing-shopping').style.display = 'inline';
+
+        try {
+            await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'sync_lists', shopping: appLists.shopping, tasks: appLists.tasks })
+            });
+        } catch(e) {
+            console.error("Failed to save lists:", e);
+        } finally {
+            document.getElementById('syncing-tasks').style.display = 'none';
+            document.getElementById('syncing-shopping').style.display = 'none';
+        }
+    }
+
+    function renderLists() {
+        const renderHtml = (items, type) => {
+            return items.map(item => `
+                <li class="item-li ${item.done ? 'done' : ''}">
+                    <input type="checkbox" class="item-checkbox" ${item.done ? 'checked' : ''} onchange="toggleListItem('${type}', '${item.id}')">
+                    <span class="item-text">${item.text}</span>
+                    <button class="item-delete" onclick="deleteListItem('${type}', '${item.id}')" title="Delete">✕</button>
+                </li>
+            `).join('');
+        };
+        document.getElementById('shopping-ul').innerHTML = renderHtml(appLists.shopping, 'shopping');
+        document.getElementById('tasks-ul').innerHTML = renderHtml(appLists.tasks, 'tasks');
+    }
+
+    function addListItem(type) {
+        const input = document.getElementById(`${type}-input`);
+        const text = input.value.trim();
+        if (!text) return;
+
+        const newItem = { id: Date.now().toString(), text: text, done: false };
+        appLists[type].unshift(newItem); // add to top
+        input.value = '';
+        renderLists();
+        syncListsToCloud();
+    }
+
+    function toggleListItem(type, id) {
+        const item = appLists[type].find(i => i.id === id);
+        if (item) {
+            item.done = !item.done;
+            renderLists();
+            syncListsToCloud();
+        }
+    }
+
+    function deleteListItem(type, id) {
+        // Removes item from the app and overwrites the Google sheet with the updated list
+        appLists[type] = appLists[type].filter(i => i.id !== id);
+        renderLists();
+        syncListsToCloud();
+    }
+
+    // --- CALCULATOR FUNCTIONS ---
+
+    function showStatus(elementId, statusObj) {
+        const el = document.getElementById(elementId);
+        el.style.display = 'block';
+        el.textContent = `Entry logged. ${statusObj.method}`;
+    }
+
+    async function calculateDilution() {
+        const vol = parseFloat(document.getElementById('dil-vol').value);
+        const startAbv = parseFloat(document.getElementById('dil-abv-start').value);
+        const targetAbv = parseFloat(document.getElementById('dil-abv-target').value);
+        if (isNaN(vol) || isNaN(startAbv) || isNaN(targetAbv)) return alert('Enter valid numbers.');
+
+        const waterNeeded = vol * ((startAbv / targetAbv) - 1);
+        const finalVol = vol + waterNeeded;
+        document.getElementById('res-water-needed').textContent = `${waterNeeded.toFixed(2)} L`;
+        document.getElementById('res-final-vol').textContent = `${finalVol.toFixed(2)} L`;
+        document.getElementById('dilution-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Dilution', note: document.getElementById('dil-batch-note').value, inputs: `${vol}L @ ${startAbv}%, Target: ${targetAbv}%`, result: `Add ${waterNeeded.toFixed(2)} L water` });
+        showStatus('dilution-status', status);
+    }
+
+    async function calculateFortification() {
+        const baseVol = parseFloat(document.getElementById('fort-base-vol').value);
+        const baseAbv = parseFloat(document.getElementById('fort-base-abv').value);
+        const highAbv = parseFloat(document.getElementById('fort-high-abv').value);
+        const targetAbv = parseFloat(document.getElementById('fort-target-abv').value);
+        if (isNaN(baseVol) || isNaN(baseAbv) || isNaN(highAbv) || isNaN(targetAbv)) return alert('Enter valid numbers.');
+
+        const fortVolNeeded = baseVol * ((targetAbv - baseAbv) / (highAbv - targetAbv));
+        document.getElementById('res-fort-needed').textContent = `${fortVolNeeded.toFixed(2)} L`;
+        document.getElementById('res-fort-total-vol').textContent = `${(baseVol + fortVolNeeded).toFixed(2)} L`;
+        document.getElementById('fortification-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Fortification', note: document.getElementById('fort-batch-note').value, inputs: `Base: ${baseVol}L @ ${baseAbv}%, Fortifier: ${highAbv}%, Target: ${targetAbv}%`, result: `Add ${fortVolNeeded.toFixed(2)} L spirit` });
+        showStatus('fortification-status', status);
+    }
+
+    async function calculateSyrup() {
+        const targetVol = parseFloat(document.getElementById('syrup-vol').value);
+        if (isNaN(targetVol)) return alert('Enter valid volume.');
+
+        document.getElementById('res-simple-water').textContent = `${(targetVol * 0.613).toFixed(3)} L`;
+        document.getElementById('res-simple-sugar').textContent = `${(targetVol * 0.613).toFixed(3)} kg`;
+        document.getElementById('res-rich-water').textContent = `${(targetVol * 0.437).toFixed(3)} L`;
+        document.getElementById('res-rich-sugar').textContent = `${(targetVol * 0.874).toFixed(3)} kg`;
+        document.getElementById('syrup-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Sugar Syrup', note: document.getElementById('syrup-batch-note').value, inputs: `Target: ${targetVol} L`, result: `1:1 -> ${(targetVol*0.613).toFixed(2)}kg sugar` });
+        showStatus('syrup-status', status);
+    }
+
+    async function calculateAlcometerTemp() {
+        const A = parseFloat(document.getElementById('alc-abv').value);
+        const temp = parseFloat(document.getElementById('alc-temp').value);
+        const unit = document.getElementById('alc-temp-unit').value;
+        const cal = parseFloat(document.getElementById('alc-cal-temp').value);
+        if (isNaN(A) || isNaN(temp)) return alert('Enter valid numbers.');
+
+        const deltaT = (unit === 'F' ? (temp - 32) * (5 / 9) : temp) - cal;
+        const dynSlope = 0.1342 + (0.0104*A) - (0.000185*A*A) + (0.00000114*A*A*A) + (0.0003*deltaT) + (0.000002*deltaT*deltaT) - (0.000015*A*deltaT);
+        let trueAbv = Math.max(0, Math.min(100, A - (deltaT * dynSlope)));
+
+        document.getElementById('res-alc-true-abv').textContent = `${trueAbv.toFixed(2)}%`;
+        document.getElementById('alc-temp-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Alcometer Temp', note: document.getElementById('alc-batch-note').value, inputs: `Obs: ${A}% @ ${temp}°${unit}`, result: `True ABV: ${trueAbv.toFixed(2)}%` });
+        showStatus('alc-status', status);
+    }
+
+    async function calculateHydrometerTemp() {
+        const sg = parseFloat(document.getElementById('hyd-sg').value);
+        const temp = parseFloat(document.getElementById('hyd-temp').value);
+        const unit = document.getElementById('hyd-temp-unit').value;
+        const calC = parseFloat(document.getElementById('hyd-cal-temp').value);
+        if (isNaN(sg) || isNaN(temp)) return alert('Enter valid numbers.');
+
+        const tempF = unit === 'C' ? (temp * 9 / 5) + 32 : temp;
+        const calF = (calC * 9 / 5) + 32;
+        const factor = (f) => 1.0013034 - (0.00013472261*f) + (0.0000020405259*f*f) - (0.0000000023282094*f*f*f);
+        const correctedSg = sg * (factor(tempF) / factor(calF));
+
+        document.getElementById('res-hyd-true-sg').textContent = correctedSg.toFixed(4);
+        document.getElementById('hyd-temp-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Hydrometer Temp', note: document.getElementById('hyd-batch-note').value, inputs: `Obs: ${sg} @ ${temp}°${unit}`, result: `True SG: ${correctedSg.toFixed(4)}` });
+        showStatus('hyd-status', status);
+    }
+
+    async function calculateYield() {
+        const og = parseFloat(document.getElementById('yield-og').value);
+        const fg = parseFloat(document.getElementById('yield-fg').value);
+        const washVol = parseFloat(document.getElementById('yield-wash-vol').value);
+        const lwVol = parseFloat(document.getElementById('yield-low-wines-vol').value);
+        if (isNaN(og) || isNaN(fg) || isNaN(washVol)) return alert('Enter valid numbers.');
+
+        const washAbv = (og - fg) * 131.25;
+        document.getElementById('res-yield-wash-abv').textContent = `${washAbv.toFixed(2)}%`;
+        document.getElementById('res-yield-low-wines-abv').textContent = lwVol > 0 ? `${((washVol * washAbv) / lwVol).toFixed(2)}%` : '0%';
+        document.getElementById('yield-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Yield Prediction', note: document.getElementById('yield-batch-note').value, inputs: `OG: ${og}, FG: ${fg}`, result: `Wash ABV: ${washAbv.toFixed(2)}%` });
+        showStatus('yield-status', status);
+    }
+
+    async function calculateVolWeight() {
+        const amount = parseFloat(document.getElementById('vw-amount').value);
+        const abv = parseFloat(document.getElementById('vw-abv').value);
+        const isVolToWeight = document.getElementById('vw-direction').value === 'v2w';
+        if (isNaN(amount) || isNaN(abv)) return alert('Enter valid numbers.');
+
+        const density = 0.99823 - (0.00075 * abv) - (0.0000134 * abv * abv);
+        const result = isVolToWeight ? (amount * density).toFixed(3) + ' kg' : (amount / density).toFixed(3) + ' L';
+
+        document.getElementById('vw-res-value').textContent = result;
+        document.getElementById('vw-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: isVolToWeight ? 'Vol → Weight' : 'Weight → Vol', note: document.getElementById('vw-batch-note').value, inputs: `${amount} @ ${abv}%`, result: result });
+        showStatus('vw-status', status);
+    }
+
+    function renderDirectory() {
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        const tbody = document.getElementById('directory-body');
+        tbody.innerHTML = history.length === 0 
+            ? `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No calculations saved yet.</td></tr>`
+            : history.map(item => `
+                <tr>
+                    <td>${item.date}</td><td><strong>${item.type}</strong></td><td>${item.note}</td>
+                    <td>${item.inputs}</td><td style="color:var(--accent);">${item.result}</td>
+                    <td><button class="btn btn-danger" style="padding:0.3rem;" onclick="deleteEntryLocal(${item.id})">Delete</button></td>
+                </tr>`).join('');
+    }
+
+    function deleteEntryLocal(id) {
+        let history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history.filter(i => i.id !== id)));
+        renderDirectory();
+    }
+
+    function clearDirectory() {
+        if (confirm('Clear local history? (Cloud backup in Google Sheets will NOT be deleted)')) {
+            localStorage.removeItem(STORAGE_KEY);
+            renderDirectory();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSheetsUrl();
+        renderDirectory();
+    });
+</script>
+</body>
+</html>
