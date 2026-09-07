@@ -2,161 +2,232 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <title>Laboratory & Distillery Toolkit</title>
     <style>
         :root {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
+            --input-bg: #0b1120;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent: #38bdf8;
             --accent-hover: #0284c7;
             --border-color: #334155;
             --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
             --success: #22c55e;
             --warning: #f59e0b;
+            --radius: 12px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        body { background-color: var(--bg-color); color: var(--text-primary); padding: 1rem; display: flex; justify-content: center; }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
 
-        .container { width: 100%; max-width: 980px; }
+        .container { width: 100%; max-width: 800px; padding: 1rem; }
 
-        header { margin-bottom: 2rem; text-align: center; }
-        header h1 { font-size: 1.8rem; color: var(--text-primary); }
-        header p { color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem; }
+        /* Sticky Top Header */
+        header { margin-bottom: 1.5rem; text-align: center; padding-top: 1rem; }
+        header h1 { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
+        header p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.3rem; }
 
-        .nav-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; flex-wrap: wrap; }
-        .tab-btn { background: none; border: none; color: var(--text-secondary); padding: 0.6rem 1rem; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
-        .tab-btn.active { background-color: var(--card-bg); color: var(--accent); border-bottom: 2px solid var(--accent); }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
-
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
-        label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
-        input[type="text"], input[type="number"], select { background: #0f172a; border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.65rem; border-radius: 6px; font-size: 0.95rem; outline: none; }
-        input:focus, select:focus { border-color: var(--accent); }
-
-        .btn { background-color: var(--accent); color: #0f172a; border: none; padding: 0.65rem 1.2rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s ease; }
-        .btn:hover { background-color: var(--accent-hover); }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
-        .btn-outline:hover { border-color: var(--text-primary); color: var(--text-primary); }
-        .btn-danger { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); }
-        .btn-danger:hover { background-color: var(--danger); color: #fff; }
-
-        .results { background: #0b1120; border: 1px dashed var(--border-color); border-radius: 6px; padding: 1rem; margin: 1.25rem 0; }
-        .result-block { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
-        .result-block:last-of-type { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-        .result-block-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; }
-        .result-item { display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.9rem; }
-        .result-value { font-weight: 700; color: var(--text-primary); }
-
-        .file-sync-bar { display: flex; align-items: center; justify-content: space-between; background-color: #0b1120; border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem; }
-        .file-sync-status { color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap; }
-        .file-sync-status.active { color: var(--success); font-weight: 600; }
-        .status-msg { font-size: 0.8rem; color: var(--success); margin-top: 0.5rem; display: none; }
+        .file-sync-bar { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background-color: var(--card-bg); border: 1px solid var(--border-color); 
+            padding: 0.85rem; border-radius: var(--radius); margin-bottom: 1.5rem; 
+            flex-wrap: wrap; gap: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
         
         .url-input-container { display: flex; flex: 1; gap: 0.5rem; min-width: 250px; }
         .url-input-container input { flex: 1; }
 
-        /* Shared Lists CSS */
-        .list-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-        .list-input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-        .list-input-group input { flex: 1; }
-        .items-ul { list-style: none; margin-top: 1rem; }
-        .item-li { display: flex; align-items: center; gap: 0.75rem; background: #0f172a; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; border: 1px solid var(--border-color); transition: 0.2s; }
-        .item-li.done { opacity: 0.6; }
-        .item-li.done .item-text { text-decoration: line-through; color: var(--text-secondary); }
-        .item-checkbox { width: 1.2rem; height: 1.2rem; accent-color: var(--accent); cursor: pointer; }
-        .item-text { flex: 1; font-size: 0.95rem; }
-        .item-delete { background: none; border: none; color: var(--text-secondary); font-weight: bold; cursor: pointer; font-size: 1.2rem; padding: 0 0.5rem; transition: 0.2s; }
-        .item-delete:hover { color: var(--danger); transform: scale(1.1); }
-        .syncing-badge { font-size: 0.8rem; color: var(--accent); font-weight: normal; margin-left: 0.5rem; display: none; }
+        .file-sync-status { color: var(--text-secondary); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+        .file-sync-status.active { color: var(--success); font-weight: 600; }
+        
+        /* Navigation Bar (Responsive Desktop vs Mobile) */
+        .nav-wrapper {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-tabs { 
+            display: flex; 
+            gap: 0.5rem; 
+            padding: 0.25rem 2px;
+            flex-wrap: wrap; /* Wraps on Desktop */
+            justify-content: center;
+        }
 
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
-        th, td { padding: 0.75rem; border-bottom: 1px solid var(--border-color); }
-        th { color: var(--text-secondary); font-weight: 600; }
+        /* Mobile specific horizontal scrolling */
+        @media (max-width: 768px) {
+            .nav-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .nav-wrapper::-webkit-scrollbar { display: none; }
+            .nav-tabs {
+                flex-wrap: nowrap; /* Forces swipeable row on phones */
+                justify-content: flex-start;
+            }
+        }
+        
+        .tab-btn { 
+            background: var(--card-bg); border: 1px solid var(--border-color); 
+            color: var(--text-secondary); padding: 0.7rem 1.2rem; font-size: 0.9rem; 
+            font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.2s ease; 
+            white-space: nowrap;
+        }
+        .tab-btn.active { 
+            background-color: var(--accent); color: #0f172a; border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Card Layout */
+        .card { 
+            background-color: var(--card-bg); border: 1px solid var(--border-color); 
+            border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .card-title { font-size: 1.25rem; margin-bottom: 1.25rem; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;}
+
+        /* Form Elements */
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+        @media (min-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr; } } /* 2 columns on desktop */
+        
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input[type="text"], input[type="number"], select { 
+            background: var(--input-bg); border: 1px solid var(--border-color); 
+            color: var(--text-primary); padding: 0.85rem; border-radius: 8px; 
+            font-size: 1rem; outline: none; transition: border-color 0.2s; appearance: none;
+        }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+
+        /* Buttons */
+        .btn { 
+            background-color: var(--accent); color: #0f172a; border: none; padding: 0.85rem 1.5rem; 
+            font-size: 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; width: 100%; transition: 0.2s ease; 
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn-danger { background-color: var(--danger-bg); border: 1px solid var(--danger); color: #ff7676; }
+
+        /* Results Box */
+        .results { background: var(--input-bg); border-radius: 8px; padding: 1.25rem; margin-top: 1.5rem; border-left: 4px solid var(--accent); }
+        .result-block { margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .result-block:last-of-type { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .result-block-title { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px;}
+        .result-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .result-value { font-weight: 700; font-size: 1.1rem; color: var(--text-primary); text-align: right; }
+        .status-msg { font-size: 0.85rem; color: var(--success); margin-top: 0.75rem; text-align: center; display: none; font-weight: 500;}
+
+        /* Shared Lists CSS */
+        .list-input-group { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+        .list-input-group input { flex: 1; }
+        .list-input-group .btn { width: auto; }
+        .items-ul { list-style: none; }
+        .item-li { display: flex; align-items: center; gap: 0.75rem; background: var(--input-bg); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid var(--border-color); }
+        .item-li.done { opacity: 0.5; background: transparent; }
+        .item-li.done .item-text { text-decoration: line-through; color: var(--text-secondary); }
+        .item-checkbox { width: 1.5rem; height: 1.5rem; accent-color: var(--accent); }
+        .item-text { flex: 1; font-size: 1rem; line-height: 1.4; }
+        .item-delete { background: var(--danger-bg); border: none; color: #ff7676; border-radius: 6px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .syncing-badge { font-size: 0.8rem; color: var(--accent); font-weight: normal; margin-left: auto; display: none; }
+
+        /* History Table */
+        .table-container { overflow-x: auto; background: var(--input-bg); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; min-width: 500px; }
+        th, td { padding: 1rem 0.75rem; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; background: var(--card-bg); }
+        td strong { color: var(--accent); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Laboratory & Distillery Toolkit</h1>
-        <p>Calculations, cloud backups, and shared team lists.</p>
+        <h1>Distillery Toolkit</h1>
+        <p>Proofing, Yields & Shared Lab Data</p>
     </header>
 
     <!-- Google Sheets Sync Status Bar -->
     <div class="file-sync-bar">
         <div class="url-input-container">
-            <input type="text" id="sheets-url-input" placeholder="Paste Google Apps Script Web App URL here...">
-            <button class="btn btn-outline" onclick="saveSheetsUrl()">Save Link</button>
+            <input type="text" id="sheets-url-input" placeholder="Paste Web App URL here...">
+            <button class="btn btn-outline" style="width: auto;" onclick="saveSheetsUrl()">Link Cloud</button>
         </div>
-        <span id="sheets-status" class="file-sync-status">Sheet Not Linked</span>
+        <span id="sheets-status" class="file-sync-status">❌ Not Linked</span>
     </div>
 
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('lists')">Shared Lists</button>
-        <button class="tab-btn" onclick="switchTab('dilution')">Spirit Dilution</button>
-        <button class="tab-btn" onclick="switchTab('fortification')">Fortification</button>
-        <button class="tab-btn" onclick="switchTab('syrup')">Sugar Syrup</button>
-        <button class="tab-btn" onclick="switchTab('alc-temp')">Alcometer</button>
-        <button class="tab-btn" onclick="switchTab('hyd-temp')">Hydrometer</button>
-        <button class="tab-btn" onclick="switchTab('yield')">Yield Predict</button>
-        <button class="tab-btn" onclick="switchTab('vol-weight')">Vol ↔ Weight</button>
-        <button class="tab-btn" onclick="switchTab('directory')">History Log</button>
+    <!-- Responsive Nav Bar -->
+    <div class="nav-wrapper">
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('lists')">Shared Lists</button>
+            <button class="tab-btn" onclick="switchTab('dilution')">Dilution</button>
+            <button class="tab-btn" onclick="switchTab('fortification')">Fortify</button>
+            <button class="tab-btn" onclick="switchTab('syrup')">Syrup</button>
+            <button class="tab-btn" onclick="switchTab('alc-temp')">Alcometer</button>
+            <button class="tab-btn" onclick="switchTab('hyd-temp')">Hydrometer</button>
+            <button class="tab-btn" onclick="switchTab('yield')">Yield Predict</button>
+            <button class="tab-btn" onclick="switchTab('vol-weight')">Vol/Weight</button>
+            <button class="tab-btn" onclick="switchTab('directory')">History Log</button>
+        </div>
     </div>
 
     <!-- SHARED LISTS TAB -->
     <div id="tab-lists" class="tab-content active">
-        <div class="list-columns">
-            <!-- Tasks Column -->
-            <div class="card">
-                <h3 style="margin-bottom: 1rem; display: flex; align-items: center;">
-                    Task List <span id="syncing-tasks" class="syncing-badge">Syncing...</span>
-                </h3>
-                <div class="list-input-group">
-                    <input type="text" id="tasks-input" placeholder="Enter a new task..." onkeypress="if(event.key==='Enter') addListItem('tasks')">
-                    <button class="btn" onclick="addListItem('tasks')">Add</button>
-                </div>
-                <ul class="items-ul" id="tasks-ul"></ul>
+        <div class="card">
+            <h3 class="card-title">
+                Task List <span id="syncing-tasks" class="syncing-badge">Saving...</span>
+            </h3>
+            <div class="list-input-group">
+                <input type="text" id="tasks-input" placeholder="Enter a new task..." onkeypress="if(event.key==='Enter') addListItem('tasks')">
+                <button class="btn" onclick="addListItem('tasks')">+</button>
             </div>
+            <ul class="items-ul" id="tasks-ul"></ul>
+        </div>
 
-            <!-- Shopping Column -->
-            <div class="card">
-                <h3 style="margin-bottom: 1rem; display: flex; align-items: center;">
-                    Shopping List <span id="syncing-shopping" class="syncing-badge">Syncing...</span>
-                </h3>
-                <div class="list-input-group">
-                    <input type="text" id="shopping-input" placeholder="Enter an item to buy..." onkeypress="if(event.key==='Enter') addListItem('shopping')">
-                    <button class="btn" onclick="addListItem('shopping')">Add</button>
-                </div>
-                <ul class="items-ul" id="shopping-ul"></ul>
+        <div class="card">
+            <h3 class="card-title">
+                Shopping List <span id="syncing-shopping" class="syncing-badge">Saving...</span>
+            </h3>
+            <div class="list-input-group">
+                <input type="text" id="shopping-input" placeholder="Enter an item to buy..." onkeypress="if(event.key==='Enter') addListItem('shopping')">
+                <button class="btn" onclick="addListItem('shopping')">+</button>
             </div>
+            <ul class="items-ul" id="shopping-ul"></ul>
         </div>
-        <div style="text-align: center;">
-            <button class="btn btn-outline" onclick="fetchCloudLists()">🔄 Refresh Lists from Cloud</button>
-        </div>
+        
+        <button class="btn btn-outline" onclick="fetchCloudLists(false)">🔄 Manual Refresh</button>
     </div>
 
     <!-- Spirit Dilution Calculator -->
     <div id="tab-dilution" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 1rem;">Spirit Dilution / Proofing</h3>
+            <h3 class="card-title">Spirit Dilution / Proofing</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Initial Volume (L)</label><input type="number" id="dil-vol" placeholder="e.g., 250.0"></div>
-                <div class="form-group"><label>Initial ABV (%)</label><input type="number" id="dil-abv-start" placeholder="e.g., 75.0"></div>
-                <div class="form-group"><label>Target ABV (%)</label><input type="number" id="dil-abv-target" placeholder="e.g., 40.0"></div>
-                <div class="form-group"><label>Batch / Note</label><input type="text" id="dil-batch-note" placeholder="e.g., Batch #12 Gin Cut"></div>
+                <div class="form-group"><label>Initial Volume (L)</label><input type="number" id="dil-vol" placeholder="250.0" inputmode="decimal"></div>
+                <div class="form-group"><label>Initial ABV (%)</label><input type="number" id="dil-abv-start" placeholder="75.0" inputmode="decimal"></div>
+                <div class="form-group"><label>Target ABV (%)</label><input type="number" id="dil-abv-target" placeholder="40.0" inputmode="decimal"></div>
+                <div class="form-group"><label>Batch / Note</label><input type="text" id="dil-batch-note" placeholder="Gin Cut #12"></div>
             </div>
             <button class="btn" onclick="calculateDilution()">Calculate & Save</button>
             <div class="results" id="dilution-result" style="display: none;">
@@ -170,12 +241,12 @@
     <!-- Fortification Calculator -->
     <div id="tab-fortification" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 1rem;">Spirit Fortification / Blending</h3>
+            <h3 class="card-title">Spirit Fortification</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Base Liquid Volume (L)</label><input type="number" id="fort-base-vol"></div>
-                <div class="form-group"><label>Base Liquid ABV (%)</label><input type="number" id="fort-base-abv"></div>
-                <div class="form-group"><label>Fortifying Spirit ABV (%)</label><input type="number" id="fort-high-abv"></div>
-                <div class="form-group"><label>Target Fortified ABV (%)</label><input type="number" id="fort-target-abv"></div>
+                <div class="form-group"><label>Base Liquid Volume (L)</label><input type="number" id="fort-base-vol" inputmode="decimal"></div>
+                <div class="form-group"><label>Base Liquid ABV (%)</label><input type="number" id="fort-base-abv" inputmode="decimal"></div>
+                <div class="form-group"><label>Fortifying Spirit ABV (%)</label><input type="number" id="fort-high-abv" inputmode="decimal"></div>
+                <div class="form-group"><label>Target Fortified ABV (%)</label><input type="number" id="fort-target-abv" inputmode="decimal"></div>
                 <div class="form-group" style="grid-column: 1 / -1;"><label>Batch / Note</label><input type="text" id="fort-batch-note"></div>
             </div>
             <button class="btn" onclick="calculateFortification()">Calculate & Save</button>
@@ -190,9 +261,9 @@
     <!-- Sugar Syrup -->
     <div id="tab-syrup" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 1rem;">Sugar Syrup (1:1 & 2:1)</h3>
+            <h3 class="card-title">Sugar Syrup (1:1 & 2:1)</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Desired Final Volume (L)</label><input type="number" id="syrup-vol"></div>
+                <div class="form-group"><label>Desired Final Volume (L)</label><input type="number" id="syrup-vol" inputmode="decimal"></div>
                 <div class="form-group"><label>Batch / Note</label><input type="text" id="syrup-batch-note"></div>
             </div>
             <button class="btn" onclick="calculateSyrup()">Calculate & Save</button>
@@ -215,10 +286,10 @@
     <!-- Alcometer Temp Adjust -->
     <div id="tab-alc-temp" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 1rem;">Alcometer Temperature Adjustment</h3>
+            <h3 class="card-title">Alcometer Temp Adjust</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Observed ABV (%)</label><input type="number" id="alc-abv"></div>
-                <div class="form-group"><label>Current Temp</label><input type="number" id="alc-temp"></div>
+                <div class="form-group"><label>Observed ABV (%)</label><input type="number" id="alc-abv" inputmode="decimal"></div>
+                <div class="form-group"><label>Current Temp</label><input type="number" id="alc-temp" inputmode="decimal"></div>
                 <div class="form-group"><label>Temp Scale</label><select id="alc-temp-unit"><option value="C">Celsius (°C)</option><option value="F">Fahrenheit (°F)</option></select></div>
                 <div class="form-group"><label>Calibrated Temp</label><select id="alc-cal-temp"><option value="20">20°C / 68°F</option><option value="15.56">60°F / 15.56°C</option></select></div>
                 <div class="form-group" style="grid-column: 1 / -1;"><label>Note</label><input type="text" id="alc-batch-note"></div>
@@ -234,10 +305,10 @@
     <!-- Hydrometer Temp Adjust -->
     <div id="tab-hyd-temp" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 1rem;">Hydrometer Specific Gravity Adjustment</h3>
+            <h3 class="card-title">Hydrometer SG Adjust</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Observed SG</label><input type="number" id="hyd-sg" step="0.001"></div>
-                <div class="form-group"><label>Current Temp</label><input type="number" id="hyd-temp"></div>
+                <div class="form-group"><label>Observed SG</label><input type="number" id="hyd-sg" step="0.001" inputmode="decimal"></div>
+                <div class="form-group"><label>Current Temp</label><input type="number" id="hyd-temp" inputmode="decimal"></div>
                 <div class="form-group"><label>Temp Scale</label><select id="hyd-temp-unit"><option value="C">Celsius (°C)</option><option value="F">Fahrenheit (°F)</option></select></div>
                 <div class="form-group"><label>Calibrated Temp</label><select id="hyd-cal-temp"><option value="20">20°C / 68°F</option><option value="15.56">60°F / 15.56°C</option></select></div>
                 <div class="form-group"><label>Wash Type</label><input type="text" id="hyd-wash-type"></div>
@@ -254,19 +325,19 @@
     <!-- Yield Prediction -->
     <div id="tab-yield" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 1rem;">Fermentation & Yield Prediction</h3>
+            <h3 class="card-title">Yield Prediction</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Starting SG (OG)</label><input type="number" id="yield-og" step="0.001"></div>
-                <div class="form-group"><label>Final SG (FG)</label><input type="number" id="yield-fg" step="0.001"></div>
+                <div class="form-group"><label>Starting SG (OG)</label><input type="number" id="yield-og" step="0.001" inputmode="decimal"></div>
+                <div class="form-group"><label>Final SG (FG)</label><input type="number" id="yield-fg" step="0.001" inputmode="decimal"></div>
                 <div class="form-group"><label>Wash Type</label><input type="text" id="yield-wash-type"></div>
-                <div class="form-group"><label>Wash Volume (L)</label><input type="number" id="yield-wash-vol" value="900"></div>
-                <div class="form-group"><label>Est. Low Wines Vol (L)</label><input type="number" id="yield-low-wines-vol" value="280"></div>
+                <div class="form-group"><label>Wash Volume (L)</label><input type="number" id="yield-wash-vol" value="900" inputmode="decimal"></div>
+                <div class="form-group"><label>Est. Low Wines Vol (L)</label><input type="number" id="yield-low-wines-vol" value="280" inputmode="decimal"></div>
                 <div class="form-group"><label>Note</label><input type="text" id="yield-batch-note"></div>
             </div>
             <button class="btn" onclick="calculateYield()">Calculate & Save</button>
             <div class="results" id="yield-result" style="display: none;">
-                <div class="result-item"><span>Calculated Wash ABV:</span><span class="result-value" id="res-yield-wash-abv">0.00%</span></div>
-                <div class="result-item"><span>Predicted Low Wines ABV:</span><span class="result-value" id="res-yield-low-wines-abv">0.00%</span></div>
+                <div class="result-item"><span>Calc Wash ABV:</span><span class="result-value" id="res-yield-wash-abv">0.00%</span></div>
+                <div class="result-item"><span>Pred. Low Wines ABV:</span><span class="result-value" id="res-yield-low-wines-abv">0.00%</span></div>
                 <div class="status-msg" id="yield-status"></div>
             </div>
         </div>
@@ -275,17 +346,17 @@
     <!-- Volume to Weight -->
     <div id="tab-vol-weight" class="tab-content">
         <div class="card">
-            <h3 style="margin-bottom: 1rem;">Volume ↔ Weight Converter</h3>
+            <h3 class="card-title">Volume ↔ Weight</h3>
             <div class="form-grid">
-                <div class="form-group">
+                <div class="form-group" style="grid-column: 1 / -1;">
                     <label>Conversion Mode</label>
                     <select id="vw-direction" onchange="document.getElementById('vw-amount-label').textContent = this.value==='v2w' ? 'Volume Amount (L)' : 'Weight Amount (kg)'">
                         <option value="v2w">Volume to Weight (L → kg)</option><option value="w2v">Weight to Volume (kg → L)</option>
                     </select>
                 </div>
-                <div class="form-group"><label id="vw-amount-label">Volume Amount (L)</label><input type="number" id="vw-amount"></div>
-                <div class="form-group"><label>Spirit ABV (%)</label><input type="number" id="vw-abv"></div>
-                <div class="form-group"><label>Note</label><input type="text" id="vw-batch-note"></div>
+                <div class="form-group"><label id="vw-amount-label">Volume Amount (L)</label><input type="number" id="vw-amount" inputmode="decimal"></div>
+                <div class="form-group"><label>Spirit ABV (%)</label><input type="number" id="vw-abv" inputmode="decimal"></div>
+                <div class="form-group" style="grid-column: 1 / -1;"><label>Note</label><input type="text" id="vw-batch-note"></div>
             </div>
             <button class="btn" onclick="calculateVolWeight()">Calculate & Save</button>
             <div class="results" id="vw-result" style="display: none;">
@@ -298,16 +369,17 @@
     <!-- Calculation Directory -->
     <div id="tab-directory" class="tab-content">
         <div class="card">
-            <div class="actions-bar">
-                <h3>Calculation History Log</h3>
-                <button class="btn btn-danger" onclick="clearDirectory()">Clear Local History</button>
-            </div>
+            <h3 class="card-title">
+                History Log
+                <button class="btn btn-danger" style="width: auto; padding: 0.5rem; font-size:0.8rem;" onclick="clearDirectory()">Clear</button>
+            </h3>
             <div class="table-container">
                 <table id="directory-table">
-                    <thead><tr><th>Date</th><th>Type</th><th>Note</th><th>Inputs</th><th>Result</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Type & Date</th><th>Note</th><th>Inputs</th><th>Result</th><th style="text-align:center;">Action</th></tr></thead>
                     <tbody id="directory-body"></tbody>
                 </table>
             </div>
+            <button class="btn btn-outline" style="margin-top: 1rem;" onclick="exportCSVManual()">⬇️ Download Local CSV</button>
         </div>
     </div>
 </div>
@@ -322,7 +394,7 @@
         event.target.classList.add('active');
         document.getElementById(`tab-${tabId}`).classList.add('active');
         if (tabId === 'directory') renderDirectory();
-        if (tabId === 'lists') renderLists();
+        if (tabId === 'lists') fetchCloudLists(true); 
     }
 
     // --- GOOGLE SHEETS SYNC LOGIC ---
@@ -331,35 +403,35 @@
         const savedUrl = localStorage.getItem('google_sheets_url');
         if (savedUrl) {
             document.getElementById('sheets-url-input').value = savedUrl;
-            document.getElementById('sheets-status').textContent = "Google Sheet Linked";
-            document.getElementById('sheets-status').className = "file-sync-status active";
-            fetchCloudLists(); // Grab lists automatically on boot
+            setLinkStatus(true);
+            fetchCloudLists(true); 
         }
     }
 
     function saveSheetsUrl() {
         const url = document.getElementById('sheets-url-input').value.trim();
         localStorage.setItem('google_sheets_url', url);
-        if (url) {
-            document.getElementById('sheets-status').textContent = "Google Sheet Linked";
-            document.getElementById('sheets-status').className = "file-sync-status active";
-            fetchCloudLists(); // Test fetching immediately
+        setLinkStatus(!!url);
+        if (url) fetchCloudLists(false); 
+    }
+    
+    function setLinkStatus(isConnected) {
+        const status = document.getElementById('sheets-status');
+        if (isConnected) {
+            status.innerHTML = "✅ Linked";
+            status.className = "file-sync-status active";
         } else {
-            document.getElementById('sheets-status').textContent = "Sheet Not Linked";
-            document.getElementById('sheets-status').className = "file-sync-status";
+            status.innerHTML = "❌ Not Linked";
+            status.className = "file-sync-status";
         }
     }
 
     async function saveEntry(entry) {
         const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         
-        // Deduplication check
         if (history.length > 0) {
             const latest = history[0];
-            if (latest.type === entry.type &&
-                latest.inputs === entry.inputs &&
-                latest.result === entry.result &&
-                latest.note === entry.note) {
+            if (latest.type === entry.type && latest.inputs === entry.inputs && latest.result === entry.result && latest.note === entry.note) {
                 return { saved: false, isDuplicate: true };
             }
         }
@@ -374,6 +446,7 @@
             try {
                 await fetch(sheetsUrl, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify({ action: 'log', entry: entry })
                 });
@@ -388,24 +461,36 @@
 
     // --- SHARED LISTS LOGIC ---
 
-    async function fetchCloudLists() {
+    async function fetchCloudLists(silent = false) {
         const url = localStorage.getItem('google_sheets_url');
         if(!url) return;
         
-        document.getElementById('syncing-tasks').style.display = 'inline';
-        document.getElementById('syncing-shopping').style.display = 'inline';
+        if (!silent) {
+            document.getElementById('syncing-tasks').style.display = 'inline';
+            document.getElementById('syncing-shopping').style.display = 'inline';
+        }
 
         try {
             const res = await fetch(url);
             const data = await res.json();
-            appLists.shopping = data.shopping || [];
-            appLists.tasks = data.tasks || [];
-            renderLists();
+            
+            const newShop = JSON.stringify(data.shopping || []);
+            const newTasks = JSON.stringify(data.tasks || []);
+            const oldShop = JSON.stringify(appLists.shopping);
+            const oldTasks = JSON.stringify(appLists.tasks);
+
+            if (newShop !== oldShop || newTasks !== oldTasks) {
+                appLists.shopping = data.shopping || [];
+                appLists.tasks = data.tasks || [];
+                renderLists();
+            }
         } catch(e) {
             console.error("Failed to load lists:", e);
         } finally {
-            document.getElementById('syncing-tasks').style.display = 'none';
-            document.getElementById('syncing-shopping').style.display = 'none';
+            if (!silent) {
+                document.getElementById('syncing-tasks').style.display = 'none';
+                document.getElementById('syncing-shopping').style.display = 'none';
+            }
         }
     }
 
@@ -419,19 +504,23 @@
         try {
             await fetch(url, {
                 method: 'POST',
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({ action: 'sync_lists', shopping: appLists.shopping, tasks: appLists.tasks })
             });
         } catch(e) {
             console.error("Failed to save lists:", e);
         } finally {
-            document.getElementById('syncing-tasks').style.display = 'none';
-            document.getElementById('syncing-shopping').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('syncing-tasks').style.display = 'none';
+                document.getElementById('syncing-shopping').style.display = 'none';
+            }, 800);
         }
     }
 
     function renderLists() {
         const renderHtml = (items, type) => {
+            if(items.length === 0) return `<li style="color:var(--text-secondary); text-align:center; padding:1rem; font-size:0.9rem;">List is empty.</li>`;
             return items.map(item => `
                 <li class="item-li ${item.done ? 'done' : ''}">
                     <input type="checkbox" class="item-checkbox" ${item.done ? 'checked' : ''} onchange="toggleListItem('${type}', '${item.id}')">
@@ -449,15 +538,15 @@
         const text = input.value.trim();
         if (!text) return;
 
-        const newItem = { id: Date.now().toString(), text: text, done: false };
-        appLists[type].unshift(newItem); // add to top
+        const newItem = { id: 'item_' + Date.now(), text: text, done: false };
+        appLists[type].unshift(newItem); 
         input.value = '';
         renderLists();
         syncListsToCloud();
     }
 
     function toggleListItem(type, id) {
-        const item = appLists[type].find(i => i.id === id);
+        const item = appLists[type].find(i => String(i.id) === String(id));
         if (item) {
             item.done = !item.done;
             renderLists();
@@ -466,11 +555,16 @@
     }
 
     function deleteListItem(type, id) {
-        // Removes item from the app and overwrites the Google sheet with the updated list
-        appLists[type] = appLists[type].filter(i => i.id !== id);
+        appLists[type] = appLists[type].filter(i => String(i.id) !== String(id));
         renderLists();
         syncListsToCloud();
     }
+
+    setInterval(() => {
+        if (localStorage.getItem('google_sheets_url') && document.getElementById('tab-lists').classList.contains('active')) {
+            fetchCloudLists(true);
+        }
+    }, 8000);
 
     // --- CALCULATOR FUNCTIONS ---
 
@@ -540,7 +634,7 @@
         document.getElementById('res-alc-true-abv').textContent = `${trueAbv.toFixed(2)}%`;
         document.getElementById('alc-temp-result').style.display = 'block';
 
-        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Alcometer Temp', note: document.getElementById('alc-batch-note').value, inputs: `Obs: ${A}% @ ${temp}°${unit}`, result: `True ABV: ${trueAbv.toFixed(2)}%` });
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Alcometer Temp', note: document.getElementById('alc-batch-note').value, inputs: `Obs: ${A}% @ ${temp}°${unit}`, result: `True: ${trueAbv.toFixed(2)}%` });
         showStatus('alc-status', status);
     }
 
@@ -595,16 +689,47 @@
         showStatus('vw-status', status);
     }
 
+    // --- HISTORY DIRECTORY LOGIC ---
+
+    function generateCSV(history) {
+        let csv = 'Date,Type,Note,Inputs,Result\n';
+        history.forEach(row => {
+            csv += `"${row.date}","${row.type}","${row.note}","${row.inputs}","${row.result}"\n`;
+        });
+        return csv;
+    }
+
+    function exportCSVManual() {
+        const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        if (history.length === 0) return alert('No records available to export.');
+        
+        const blob = new Blob([generateCSV(history)], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `spirit_calc_directory_${Date.now()}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
+
     function renderDirectory() {
         const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         const tbody = document.getElementById('directory-body');
+        
         tbody.innerHTML = history.length === 0 
-            ? `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No calculations saved yet.</td></tr>`
+            ? `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No history saved yet.</td></tr>`
             : history.map(item => `
                 <tr>
-                    <td>${item.date}</td><td><strong>${item.type}</strong></td><td>${item.note}</td>
-                    <td>${item.inputs}</td><td style="color:var(--accent);">${item.result}</td>
-                    <td><button class="btn btn-danger" style="padding:0.3rem;" onclick="deleteEntryLocal(${item.id})">Delete</button></td>
+                    <td>
+                        <strong>${item.type}</strong><br>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">${item.date.split(',')[0]}</span>
+                    </td>
+                    <td style="font-size: 0.85rem;">${item.note || '-'}</td>
+                    <td style="font-size: 0.85rem;">${item.inputs}</td>
+                    <td style="color:var(--accent); font-weight:600; font-size: 0.9rem;">${item.result}</td>
+                    <td style="text-align:center;"><button class="btn btn-danger" style="padding:0.4rem 0.6rem; width: auto; font-size: 0.8rem;" onclick="deleteEntryLocal(${item.id})">✕</button></td>
                 </tr>`).join('');
     }
 
@@ -624,6 +749,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadSheetsUrl();
         renderDirectory();
+        renderLists();
     });
 </script>
 </body>
