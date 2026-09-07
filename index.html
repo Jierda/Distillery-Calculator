@@ -6,7 +6,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
-    <title>Laboratory & Distillery Toolkit</title>
+    <title>Distillery Toolkit</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -50,38 +50,19 @@
             flex-wrap: wrap; gap: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
-        .url-input-container { display: flex; flex: 1; gap: 0.5rem; min-width: 250px; }
-        .url-input-container input { flex: 1; }
+        .url-input-container { display: flex; flex: 1; gap: 0.5rem; width: 100%; }
+        .url-input-container input { flex: 1; min-width: 0; }
 
-        .file-sync-status { color: var(--text-secondary); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
-        .file-sync-status.active { color: var(--success); font-weight: 600; }
+        .file-sync-status { color: var(--success); font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
         
-        /* Navigation Bar (Responsive Desktop vs Mobile) */
-        .nav-wrapper {
-            width: 100%;
-            margin-bottom: 1.5rem;
-        }
-        
-        .nav-tabs { 
-            display: flex; 
-            gap: 0.5rem; 
-            padding: 0.25rem 2px;
-            flex-wrap: wrap; /* Wraps on Desktop */
-            justify-content: center;
-        }
+        /* Navigation Bar */
+        .nav-wrapper { width: 100%; margin-bottom: 1.5rem; }
+        .nav-tabs { display: flex; gap: 0.5rem; padding: 0.25rem 2px; flex-wrap: wrap; justify-content: center; }
 
-        /* Mobile specific horizontal scrolling */
         @media (max-width: 768px) {
-            .nav-wrapper {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-            }
+            .nav-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
             .nav-wrapper::-webkit-scrollbar { display: none; }
-            .nav-tabs {
-                flex-wrap: nowrap; /* Forces swipeable row on phones */
-                justify-content: flex-start;
-            }
+            .nav-tabs { flex-wrap: nowrap; justify-content: flex-start; }
         }
         
         .tab-btn { 
@@ -109,7 +90,7 @@
 
         /* Form Elements */
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
-        @media (min-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr; } } /* 2 columns on desktop */
+        @media (min-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr; } }
         
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
         label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -142,7 +123,7 @@
         /* Shared Lists CSS */
         .list-input-group { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
         .list-input-group input { flex: 1; }
-        .list-input-group .btn { width: auto; }
+        .list-input-group .btn { width: auto; padding: 0.85rem 1.2rem; }
         .items-ul { list-style: none; }
         .item-li { display: flex; align-items: center; gap: 0.75rem; background: var(--input-bg); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid var(--border-color); }
         .item-li.done { opacity: 0.5; background: transparent; }
@@ -170,11 +151,17 @@
 
     <!-- Google Sheets Sync Status Bar -->
     <div class="file-sync-bar">
-        <div class="url-input-container">
+        <!-- State 1: Input URL (Visible if no URL is saved, or if Edit is clicked) -->
+        <div id="sync-input-container" class="url-input-container">
             <input type="text" id="sheets-url-input" placeholder="Paste Web App URL here...">
-            <button class="btn btn-outline" style="width: auto;" onclick="saveSheetsUrl()">Link Cloud</button>
+            <button class="btn btn-outline" style="width: auto; padding: 0.85rem 1rem;" onclick="saveSheetsUrl()">Link Cloud</button>
         </div>
-        <span id="sheets-status" class="file-sync-status">❌ Not Linked</span>
+        
+        <!-- State 2: Linked Status (Visible when URL is successfully saved) -->
+        <div id="sync-connected-container" style="display: none; width: 100%; justify-content: space-between; align-items: center;">
+            <span class="file-sync-status">✅ Linked to Cloud</span>
+            <button class="btn btn-outline" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem; border-color: var(--border-color); color: var(--text-secondary);" onclick="editSheetsUrl()">Edit Link</button>
+        </div>
     </div>
 
     <!-- Responsive Nav Bar -->
@@ -369,9 +356,9 @@
     <!-- Calculation Directory -->
     <div id="tab-directory" class="tab-content">
         <div class="card">
-            <h3 class="card-title">
+            <h3 class="card-title" style="display:flex; justify-content: space-between; align-items:center;">
                 History Log
-                <button class="btn btn-danger" style="width: auto; padding: 0.5rem; font-size:0.8rem;" onclick="clearDirectory()">Clear</button>
+                <button class="btn btn-danger" style="width: auto; padding: 0.5rem 1rem; font-size:0.85rem;" onclick="clearDirectory()">Clear</button>
             </h3>
             <div class="table-container">
                 <table id="directory-table">
@@ -416,14 +403,21 @@
     }
     
     function setLinkStatus(isConnected) {
-        const status = document.getElementById('sheets-status');
+        const inputContainer = document.getElementById('sync-input-container');
+        const connectedContainer = document.getElementById('sync-connected-container');
+        
         if (isConnected) {
-            status.innerHTML = "✅ Linked";
-            status.className = "file-sync-status active";
+            inputContainer.style.display = 'none';
+            connectedContainer.style.display = 'flex';
         } else {
-            status.innerHTML = "❌ Not Linked";
-            status.className = "file-sync-status";
+            inputContainer.style.display = 'flex';
+            connectedContainer.style.display = 'none';
         }
+    }
+
+    function editSheetsUrl() {
+        document.getElementById('sync-input-container').style.display = 'flex';
+        document.getElementById('sync-connected-container').style.display = 'none';
     }
 
     async function saveEntry(entry) {
@@ -669,7 +663,7 @@
         document.getElementById('res-yield-low-wines-abv').textContent = lwVol > 0 ? `${((washVol * washAbv) / lwVol).toFixed(2)}%` : '0%';
         document.getElementById('yield-result').style.display = 'block';
 
-        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Yield Prediction', note: document.getElementById('yield-batch-note').value, inputs: `OG: ${og}, FG: ${fg}`, result: `Wash ABV: ${washAbv.toFixed(2)}%` });
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Yield Prediction', note: document.getElementById('yield-batch-note').value, inputs: `OG: ${og}, FG: ${fg}`, result: `Wash: ${washAbv.toFixed(2)}%` });
         showStatus('yield-status', status);
     }
 
