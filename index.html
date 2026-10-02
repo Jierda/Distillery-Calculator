@@ -151,13 +151,12 @@
 
     <!-- Google Sheets Sync Status Bar -->
     <div class="file-sync-bar">
-        <!-- State 1: Input URL (Visible if no URL is saved, or if Edit is clicked) -->
+        <!-- State 1: Input URL -->
         <div id="sync-input-container" class="url-input-container">
             <input type="text" id="sheets-url-input" placeholder="Paste Web App URL here...">
             <button class="btn btn-outline" style="width: auto; padding: 0.85rem 1rem;" onclick="saveSheetsUrl()">Link Cloud</button>
         </div>
-        
-        <!-- State 2: Linked Status (Visible when URL is successfully saved) -->
+        <!-- State 2: Linked Status -->
         <div id="sync-connected-container" style="display: none; width: 100%; justify-content: space-between; align-items: center;">
             <span class="file-sync-status">✅ Linked to Cloud</span>
             <button class="btn btn-outline" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem; border-color: var(--border-color); color: var(--text-secondary);" onclick="editSheetsUrl()">Edit Link</button>
@@ -168,7 +167,8 @@
     <div class="nav-wrapper">
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('lists')">Shared Lists</button>
-            <button class="tab-btn" onclick="switchTab('dilution')">Dilution</button>
+            <button class="tab-btn" onclick="switchTab('dilution')">Dilute by Spirit</button>
+            <button class="tab-btn" onclick="switchTab('target-dilution')">Dilute to Yield</button>
             <button class="tab-btn" onclick="switchTab('fortification')">Fortify</button>
             <button class="tab-btn" onclick="switchTab('syrup')">Syrup</button>
             <button class="tab-btn" onclick="switchTab('alc-temp')">Alcometer</button>
@@ -206,12 +206,12 @@
         <button class="btn btn-outline" onclick="fetchCloudLists(false)">🔄 Manual Refresh</button>
     </div>
 
-    <!-- Spirit Dilution Calculator -->
+    <!-- Spirit Dilution Calculator (Given Spirit Volume) -->
     <div id="tab-dilution" class="tab-content">
         <div class="card">
-            <h3 class="card-title">Spirit Dilution / Proofing</h3>
+            <h3 class="card-title">Dilute (Given Spirit Volume)</h3>
             <div class="form-grid">
-                <div class="form-group"><label>Initial Volume (L)</label><input type="number" id="dil-vol" placeholder="250.0" inputmode="decimal"></div>
+                <div class="form-group"><label>Initial Spirit Volume (L)</label><input type="number" id="dil-vol" placeholder="250.0" inputmode="decimal"></div>
                 <div class="form-group"><label>Initial ABV (%)</label><input type="number" id="dil-abv-start" placeholder="75.0" inputmode="decimal"></div>
                 <div class="form-group"><label>Target ABV (%)</label><input type="number" id="dil-abv-target" placeholder="40.0" inputmode="decimal"></div>
                 <div class="form-group"><label>Batch / Note</label><input type="text" id="dil-batch-note" placeholder="Gin Cut #12"></div>
@@ -221,6 +221,25 @@
                 <div class="result-item"><span>Water to Add:</span><span class="result-value" id="res-water-needed">0 L</span></div>
                 <div class="result-item"><span>Final Target Vol:</span><span class="result-value" id="res-final-vol">0 L</span></div>
                 <div class="status-msg" id="dilution-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Target Yield Dilution Calculator (Target Final Volume) -->
+    <div id="tab-target-dilution" class="tab-content">
+        <div class="card">
+            <h3 class="card-title">Dilute to Target Yield</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Desired Final Volume (L)</label><input type="number" id="target-dil-vol" placeholder="1000.0" inputmode="decimal"></div>
+                <div class="form-group"><label>Current Spirit ABV (%)</label><input type="number" id="target-dil-abv-start" placeholder="75.0" inputmode="decimal"></div>
+                <div class="form-group"><label>Desired Final ABV (%)</label><input type="number" id="target-dil-abv-target" placeholder="40.0" inputmode="decimal"></div>
+                <div class="form-group"><label>Batch / Note</label><input type="text" id="target-dil-batch-note" placeholder="Tote Fill #5"></div>
+            </div>
+            <button class="btn" onclick="calculateTargetDilution()">Calculate & Save</button>
+            <div class="results" id="target-dilution-result" style="display: none;">
+                <div class="result-item"><span>Spirit Required:</span><span class="result-value" id="res-target-spirit-needed">0 L</span></div>
+                <div class="result-item"><span>Water to Add:</span><span class="result-value" id="res-target-water-needed">0 L</span></div>
+                <div class="status-msg" id="target-dilution-status"></div>
             </div>
         </div>
     </div>
@@ -356,10 +375,22 @@
     <!-- Calculation Directory -->
     <div id="tab-directory" class="tab-content">
         <div class="card">
-            <h3 class="card-title" style="display:flex; justify-content: space-between; align-items:center;">
+            <h3 class="card-title" style="display:flex; justify-content: space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
                 History Log
-                <button class="btn btn-danger" style="width: auto; padding: 0.5rem 1rem; font-size:0.85rem;" onclick="clearDirectory()">Clear</button>
+                <button class="btn btn-danger" style="width: auto; padding: 0.5rem 1rem; font-size:0.85rem;" onclick="clearDirectory()">Clear Local History</button>
             </h3>
+            
+            <div style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-dilution" checked onchange="renderDirectory()"> Dilute (Spirit)</label>
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-target-dilution" checked onchange="renderDirectory()"> Dilute (Yield)</label>
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-fortification" checked onchange="renderDirectory()"> Fortify</label>
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-syrup" checked onchange="renderDirectory()"> Syrup</label>
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-alc-temp" checked onchange="renderDirectory()"> Alcometer</label>
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-hyd-temp" checked onchange="renderDirectory()"> Hydrometer</label>
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-yield" checked onchange="renderDirectory()"> Yield</label>
+                <label style="display:flex; align-items:center; gap:0.3rem;"><input type="checkbox" id="filter-v2w" checked onchange="renderDirectory()"> Vol/Weight</label>
+            </div>
+
             <div class="table-container">
                 <table id="directory-table">
                     <thead><tr><th>Type & Date</th><th>Note</th><th>Inputs</th><th>Result</th><th style="text-align:center;">Action</th></tr></thead>
@@ -574,6 +605,8 @@
         const targetAbv = parseFloat(document.getElementById('dil-abv-target').value);
         if (isNaN(vol) || isNaN(startAbv) || isNaN(targetAbv)) return alert('Enter valid numbers.');
 
+        if (targetAbv >= startAbv) return alert('Target ABV must be strictly lower than the initial ABV.');
+
         const waterNeeded = vol * ((startAbv / targetAbv) - 1);
         const finalVol = vol + waterNeeded;
         document.getElementById('res-water-needed').textContent = `${waterNeeded.toFixed(2)} L`;
@@ -584,12 +617,34 @@
         showStatus('dilution-status', status);
     }
 
+    async function calculateTargetDilution() {
+        const finalVol = parseFloat(document.getElementById('target-dil-vol').value);
+        const startAbv = parseFloat(document.getElementById('target-dil-abv-start').value);
+        const targetAbv = parseFloat(document.getElementById('target-dil-abv-target').value);
+        if (isNaN(finalVol) || isNaN(startAbv) || isNaN(targetAbv)) return alert('Enter valid numbers.');
+
+        if (targetAbv >= startAbv) return alert('Target ABV must be strictly lower than the initial ABV.');
+
+        const spiritNeeded = finalVol * (targetAbv / startAbv);
+        const waterNeeded = finalVol - spiritNeeded;
+
+        document.getElementById('res-target-spirit-needed').textContent = `${spiritNeeded.toFixed(2)} L`;
+        document.getElementById('res-target-water-needed').textContent = `${waterNeeded.toFixed(2)} L`;
+        document.getElementById('target-dilution-result').style.display = 'block';
+
+        const status = await saveEntry({ id: Date.now(), date: new Date().toLocaleString(), type: 'Target Dilution', note: document.getElementById('target-dil-batch-note').value, inputs: `Target: ${finalVol}L @ ${targetAbv}%, from ${startAbv}%`, result: `Mix ${spiritNeeded.toFixed(2)}L spirit & ${waterNeeded.toFixed(2)}L water` });
+        showStatus('target-dilution-status', status);
+    }
+
     async function calculateFortification() {
         const baseVol = parseFloat(document.getElementById('fort-base-vol').value);
         const baseAbv = parseFloat(document.getElementById('fort-base-abv').value);
         const highAbv = parseFloat(document.getElementById('fort-high-abv').value);
         const targetAbv = parseFloat(document.getElementById('fort-target-abv').value);
         if (isNaN(baseVol) || isNaN(baseAbv) || isNaN(highAbv) || isNaN(targetAbv)) return alert('Enter valid numbers.');
+
+        if (targetAbv <= baseAbv) return alert('Target ABV must be higher than the base liquid ABV.');
+        if (highAbv <= targetAbv) return alert('Fortifying spirit ABV must be strictly higher than the target ABV.');
 
         const fortVolNeeded = baseVol * ((targetAbv - baseAbv) / (highAbv - targetAbv));
         document.getElementById('res-fort-needed').textContent = `${fortVolNeeded.toFixed(2)} L`;
@@ -712,9 +767,31 @@
         const history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         const tbody = document.getElementById('directory-body');
         
-        tbody.innerHTML = history.length === 0 
+        // Applying filters
+        const showDilution = document.getElementById('filter-dilution')?.checked ?? true;
+        const showTargetDil = document.getElementById('filter-target-dilution')?.checked ?? true;
+        const showFortification = document.getElementById('filter-fortification')?.checked ?? true;
+        const showSyrup = document.getElementById('filter-syrup')?.checked ?? true;
+        const showAlcTemp = document.getElementById('filter-alc-temp')?.checked ?? true;
+        const showHydTemp = document.getElementById('filter-hyd-temp')?.checked ?? true;
+        const showYield = document.getElementById('filter-yield')?.checked ?? true;
+        const showV2W = document.getElementById('filter-v2w')?.checked ?? true;
+        
+        let filtered = history.filter(item => {
+            if (item.type === 'Dilution' && !showDilution) return false;
+            if (item.type === 'Target Dilution' && !showTargetDil) return false;
+            if (item.type === 'Fortification' && !showFortification) return false;
+            if (item.type === 'Sugar Syrup' && !showSyrup) return false;
+            if (item.type === 'Alcometer Temp' && !showAlcTemp) return false;
+            if (item.type === 'Hydrometer Temp' && !showHydTemp) return false;
+            if (item.type === 'Yield Prediction' && !showYield) return false;
+            if ((item.type === 'Vol → Weight' || item.type === 'Weight → Vol') && !showV2W) return false;
+            return true;
+        });
+
+        tbody.innerHTML = filtered.length === 0 
             ? `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No history saved yet.</td></tr>`
-            : history.map(item => `
+            : filtered.map(item => `
                 <tr>
                     <td>
                         <strong>${item.type}</strong><br>
