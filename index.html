@@ -146,7 +146,7 @@
 <div class="container">
     <header>
         <h1>Distillery Toolkit</h1>
-        <p>Proofing, Yields & Shared Lab Data</p>
+        <p>Proofing, Yields & Shared Lists</p>
     </header>
 
     <!-- Google Sheets Sync Status Bar -->
@@ -167,10 +167,10 @@
     <div class="nav-wrapper">
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('lists')">Shared Lists</button>
-            <button class="tab-btn" onclick="switchTab('dilution')">Dilute by Spirit</button>
-            <button class="tab-btn" onclick="switchTab('target-dilution')">Dilute to Yield</button>
-            <button class="tab-btn" onclick="switchTab('fortification')">Fortify</button>
-            <button class="tab-btn" onclick="switchTab('syrup')">Syrup</button>
+            <button class="tab-btn" onclick="switchTab('dilution')">Dilute by Volume</button>
+            <button class="tab-btn" onclick="switchTab('target-dilution')">Dilution to Vol</button>
+            <button class="tab-btn" onclick="switchTab('fortification')">Fortification</button>
+            <button class="tab-btn" onclick="switchTab('syrup')">Syrup Calculator</button>
             <button class="tab-btn" onclick="switchTab('alc-temp')">Alcometer</button>
             <button class="tab-btn" onclick="switchTab('hyd-temp')">Hydrometer</button>
             <button class="tab-btn" onclick="switchTab('yield')">Yield Predict</button>
@@ -209,7 +209,7 @@
     <!-- Spirit Dilution Calculator (Given Spirit Volume) -->
     <div id="tab-dilution" class="tab-content">
         <div class="card">
-            <h3 class="card-title">Dilute (Given Spirit Volume)</h3>
+            <h3 class="card-title">Dilute by Volume</h3>
             <div class="form-grid">
                 <div class="form-group"><label>Initial Spirit Volume (L)</label><input type="number" id="dil-vol" placeholder="250.0" inputmode="decimal"></div>
                 <div class="form-group"><label>Initial ABV (%)</label><input type="number" id="dil-abv-start" placeholder="75.0" inputmode="decimal"></div>
@@ -228,7 +228,7 @@
     <!-- Target Yield Dilution Calculator (Target Final Volume) -->
     <div id="tab-target-dilution" class="tab-content">
         <div class="card">
-            <h3 class="card-title">Dilute to Target Yield</h3>
+            <h3 class="card-title">Dilute to Target Volume</h3>
             <div class="form-grid">
                 <div class="form-group"><label>Desired Final Volume (L)</label><input type="number" id="target-dil-vol" placeholder="1000.0" inputmode="decimal"></div>
                 <div class="form-group"><label>Current Spirit ABV (%)</label><input type="number" id="target-dil-abv-start" placeholder="75.0" inputmode="decimal"></div>
