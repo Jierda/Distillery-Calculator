@@ -317,7 +317,16 @@
                 <div class="form-group"><label>Current Temp</label><input type="number" id="hyd-temp" inputmode="decimal"></div>
                 <div class="form-group"><label>Temp Scale</label><select id="hyd-temp-unit"><option value="C">Celsius (°C)</option><option value="F">Fahrenheit (°F)</option></select></div>
                 <div class="form-group"><label>Calibrated Temp</label><select id="hyd-cal-temp"><option value="20">20°C / 68°F</option><option value="15.56">60°F / 15.56°C</option></select></div>
-                <div class="form-group"><label>Wash Type</label><input type="text" id="hyd-wash-type"></div>
+                <div class="form-group">
+                    <label>Wash Type</label>
+                    <select id="hyd-wash-type">
+                        <option value="Invert">Invert</option>
+                        <option value="Bairds">Bairds</option>
+                        <option value="Ale">Ale</option>
+                        <option value="Rum">Rum</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
                 <div class="form-group"><label>Note</label><input type="text" id="hyd-batch-note"></div>
             </div>
             <button class="btn" onclick="calculateHydrometerTemp()">Calculate & Save</button>
